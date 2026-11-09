@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyIR - Diagnóstico Inteligente de Imposto de Renda</title>
+    <link rel="icon" type="image/png" href="./LogoER.png">
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1457983969860238');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1457983969860238&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --accent-color: #7c3aed;
+            --accent-hover: #6d28d9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-color: #10b981;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .header-brand img {
+            height: 38px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-title-text {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 10%;
+            transition: width 0.3s ease;
+        }
+
+        .step-indicator {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.35rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-option {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 13px 16px;
+            margin: 8px 0;
+            background-color: var(--surface-color);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.93rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+        }
+
+        .btn-option:hover {
+            background-color: #f3f4f6;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-1px);
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 16px;
+            margin: 15px 0 10px 0;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="email"]:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            width: 100%;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .result-box {
+            background-color: #f1f5f9;
+            padding: 18px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-color);
+            margin: 15px 0 20px 0;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-brand">
+        <img src="./LogoER.png" alt="EasyIR Logo">
+        <span class="header-title-text">Easy<span style="color: var(--accent-color);">IR</span></span>
+    </div>
+
+    <div class="container">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Pergunta 1 -->
+        <div class="step active" id="step-1">
+            <div class="step-indicator">Pergunta 1 de 10 • Patamar de Renda</div>
+            <h2>Qual foi o seu nível aproximado de rendimento bruto no último ano?</h2>
+            <p>Ajuda a dimensionar a complexidade fiscal perante o Fisco.</p>
+            <button class="btn-option" onclick="answer(1, 1)">Até R$ 30.000 (Isento ou baixa tributação)</button>
+            <button class="btn-option" onclick="answer(1, 2)">Entre R$ 30.000 e R$ 80.000 (Renda média)</button>
+            <button class="btn-option" onclick="answer(1, 3)">Entre R$ 80.000 e R$ 200.000 (Renda alta)</button>
+            <button class="btn-option" onclick="answer(1, 4)">Acima de R$ 200.000 (Patamar
+                executivo/empresarial)</button>
+        </div>
+
+        <!-- Pergunta 2 -->
+        <div class="step" id="step-2">
+            <div class="step-indicator">Pergunta 2 de 10 • Fontes Pagadoras</div>
+            <h2>Como era a sua estrutura de trabalho e fontes de receita?</h2>
+            <p>Múltiplas origens exigem rigor no ajuste anual.</p>
+            <button class="btn-option" onclick="answer(2, 1)">Apenas uma fonte fixa (CLT único)</button>
+            <button class="btn-option" onclick="answer(2, 2)">Aposentadoria ou pensão do Governo</button>
+            <button class="btn-option" onclick="answer(2, 3)">Múltiplas fontes (CLT + Extras ou Autônomo)</button>
+            <button class="btn-option" onclick="answer(2, 4)">Empresário, sócio de PJ ou prestador corporativo</button>
+        </div>
+
+        <!-- Pergunta 3 -->
+        <div class="step" id="step-3">
+            <div class="step-indicator">Pergunta 3 de 10 • Despesas Médicas</div>
+            <h2>Teve gastos com saúde, clínicas, dentistas ou planos médicos?</h2>
+            <p>Despesas de saúde não possuem limite de teto legal.</p>
+            <button class="btn-option" onclick="answer(3, 1)">Quase nenhum gasto médico relevante</button>
+            <button class="btn-option" onclick="answer(3, 2)">Apenas consultas e exames de rotina</button>
+            <button class="btn-option" onclick="answer(3, 3)">Gastos consideráveis (tratamentos e planos)</button>
+            <button class="btn-option" onclick="answer(3, 4)">Altíssimos gastos (cirurgias ou internamentos
+                pesados)</button>
+        </div>
+
+        <!-- Pergunta 4 -->
+        <div class="step" id="step-4">
+            <div class="step-indicator">Pergunta 4 de 10 • Educação e Instrução</div>
+            <h2>Possui despesas com educação (escolas, creches, faculdades ou cursos)?</h2>
+            <p>Estes valores possuem tetos individuais estritos por CPF.</p>
+            <button class="btn-option" onclick="answer(4, 1)">Zero gastos com educação</button>
+            <button class="btn-option" onclick="answer(4, 2)">Apenas cursos próprios de aperfeiçoamento</button>
+            <button class="btn-option" onclick="answer(4, 3)">Mensalidades escolares de filhos/dependentes</button>
+            <button class="btn-option" onclick="answer(4, 4)">Ensino superior de alto custo (próprio ou
+                dependentes)</button>
+        </div>
+
+        <!-- Pergunta 5 -->
+        <div class="step" id="step-5">
+            <div class="step-indicator">Pergunta 5 de 10 • Grupo Familiar</div>
+            <h2>Qual é a sua realidade em relação a dependentes legais?</h2>
+            <p>O cruzamento de CPFs familiares é um ponto crítico de auditoria.</p>
+            <button class="btn-option" onclick="answer(5, 1)">Declaro apenas a mim mesmo (solteiro/individual)</button>
+            <button class="btn-option" onclick="answer(5, 2)">Possuo cônjuge em declaração conjunta</button>
+            <button class="btn-option" onclick="answer(5, 3)">Possuo filhos ou dependentes menores</button>
+            <button class="btn-option" onclick="answer(5, 4)">Múltiplos dependentes (filhos e pais vinculados)</button>
+        </div>
+
+        <!-- Pergunta 6 -->
+        <div class="step" id="step-6">
+            <div class="step-indicator">Pergunta 6 de 10 • Movimentação Patrimonial</div>
+            <h2>Houve compra, venda ou financiamento de bens (imóveis, carros, terrenos)?</h2>
+            <p>A evolução patrimonial deve corresponder à renda declarada.</p>
+            <button class="btn-option" onclick="answer(6, 1)">Nenhuma alteração patrimonial no ano</button>
+            <button class="btn-option" onclick="answer(6, 2)">Apenas aquisição de bens móveis (ex: carro
+                popular)</button>
+            <button class="btn-option" onclick="answer(6, 3)">Financiamento imobiliário ou aquisição de terreno</button>
+            <button class="btn-option" onclick="answer(6, 4)">Múltiplas transações, investimentos de risco e venda de
+                bens</button>
+        </div>
+
+        <!-- Pergunta 7 -->
+        <div class="step" id="step-7">
+            <div class="step-indicator">Pergunta 7 de 10 • Previdência e Investimentos</div>
+            <h2>Investe em previdência privada (PGBL) ou aplicações financeiras de bolsa?</h2>
+            <p>Investimentos exigem apuração exata de ganhos e deduções.</p>
+            <button class="btn-option" onclick="answer(7, 1)">Apenas caderneta de poupança ou renda fixa básica</button>
+            <button class="btn-option" onclick="answer(7, 2)">Ações na Bolsa de Valores em pequena escala</button>
+            <button class="btn-option" onclick="answer(7, 3)">Possuo plano de previdência privada PGBL</button>
+            <button class="btn-option" onclick="answer(7, 4)">Carteira diversificada (FIIs, Day Trade, PGBL e
+                Exterior)</button>
+        </div>
+
+        <!-- Pergunta 8 -->
+        <div class="step" id="step-8">
+            <div class="step-indicator">Pergunta 8 de 10 • Organização Documental</div>
+            <h2>Como lida com o armazenamento dos seus recibos e comprovantes fiscais?</h2>
+            <p>O nível de organização define o risco de esquecimento de deduções.</p>
+            <button class="btn-option" onclick="answer(8, 1)">Guardo tudo de qualquer jeito (papel ou WhatsApp)</button>
+            <button class="btn-option" onclick="answer(8, 2)">Tento juntar numa pasta no computador no fim do
+                ano</button>
+            <button class="btn-option" onclick="answer(8, 3)">Organizo certinho por categorias e datas</button>
+            <button class="btn-option" onclick="answer(8, 4)">Uso ferramentas digitais e controlo cada centavo</button>
+        </div>
+
+        <!-- Pergunta 9 -->
+        <div class="step" id="step-9">
+            <div class="step-indicator">Pergunta 9 de 10 • Histórico e Segurança Fiscal</div>
+            <h2>Qual é o seu maior receio ou sensação perante o Leão da Receita Federal?</h2>
+            <p>Identificar o seu nível de alerta preventivo.</p>
+            <button class="btn-option" onclick="answer(9, 1)">Desconheço as regras e tenho medo de errar feio</button>
+            <button class="btn-option" onclick="answer(9, 2)">Receio de cair na malha fina por bobeira</button>
+            <button class="btn-option" onclick="answer(9, 3)">Quero apenas garantir que não estou pagando imposto a
+                mais</button>
+            <button class="btn-option" onclick="answer(9, 4)">Busco máxima eficiência tributária sem perder
+                tempo</button>
+        </div>
+
+        <!-- Pergunta 10 -->
+        <div class="step" id="step-10">
+            <div class="step-indicator">Pergunta 10 de 10 • Prazo e Entrega</div>
+            <h2>Como costuma ser o seu prazo para a entrega da declaração?</h2>
+            <p>O timing define o nível de pressão e estresse no processo.</p>
+            <button class="btn-option" onclick="answer(10, 1)">Deixo sempre para os últimos dias de prazo</button>
+            <button class="btn-option" onclick="answer(10, 2)">Faço no meio do prazo com ajuda de terceiros</button>
+            <button class="btn-option" onclick="answer(10, 3)">Gosto de organizar com antecedência</button>
+            <button class="btn-option" onclick="answer(10, 4)">Automatizo tudo antecipadamente para evitar
+                imprevistos</button>
+        </div>
+
+        <!-- Tela Final: Perfil Personalizado + Captura de E-mail -->
+        <div class="step" id="step-result">
+            <div class="step-indicator">Raio-X Fiscal Exclusivo 🎯</div>
+            <h2 id="profileTitle">O seu perfil fiscal detalhado</h2>
+            <div class="result-box">
+                <p id="profileDescription"
+                    style="color: var(--text-main); margin:0; font-weight: 500; font-size: 0.93rem; line-height: 1.6;">
+                </p>
+            </div>
+            <p style="margin-bottom: 8px; font-weight: 600; color: var(--text-main);">Insira o seu e-mail para
+                desbloquear o relatório completo e entrar na plataforma:</p>
+            <input type="email" id="userEmail" placeholder="exemplo@seuemail.com" required>
+            <button class="btn-primary" onclick="goToSystem()">Acessar o EasyIR Agora</button>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        © 2026 EasyIR - Gestão Inteligente de Imposto de Renda • Todos os direitos reservados.
+    </div>
+
+    <script>
+        let totalScore = 0;
+        let userEmailStorage = "";
+
+        function answer(stepNum, points) {
+            totalScore += points;
+            let nextNum = stepNum + 1;
+
+            if (nextNum === 11) {
+                buildUniqueProfile();
+            }
+
+            let progress = nextNum * 10;
+            if (progress > 100) progress = 100;
+
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById(nextNum === 11 ? 'step-result' : 'step-' + nextNum).classList.add('active');
+        }
+
+        function buildUniqueProfile() {
+            let title = "";
+            let description = "";
+
+            // Lógica baseada na pontuação acumulada das 10 perguntas (gera dezenas de combinações distintas)
+            if (totalScore <= 16) {
+                title = "Perfil: Contribuinte de Risco Simples / Organização Básica";
+                description = "Identificamos um perfil de baixa complexidade patrimonial, focado em rendimentos diretos. Contudo, a falta de automação documental pode fazer com que perca deduções legais importantes a que tem direito. O EasyIR vai agilizar o seu processo e garantir segurança absoluta frente à Receita Federal.";
+            } else if (totalScore <= 25) {
+                title = "Perfil: Gestor Familiar e Deduções Ativas";
+                description = "O seu perfil demonstra movimentação relevante com despesas familiares, dependentes ou educação. O maior perigo para o seu CPF é o estouro de tetos individuais por dependente ou pequenos erros de cruzamento de dados. A nossa IA audita os seus comprovantes e protege o seu orçamento contra a malha fina.";
+            } else if (totalScore <= 34) {
+                title = "Perfil: Investidor e Alta Performance Patrimonial";
+                description = "Possui um perfil fiscal avançado, marcado por investimentos, transações de bens ou múltiplas fontes pagadoras. A sua declaração exige rigor técnico cirúrgico para justificar a evolução patrimonial sem pagar tributos indevidos. A plataforma automatiza a varredura dos seus dados para entregar relatórios prontos para o seu contador.";
+            } else {
+                title = "Perfil: Executivo / Complexidade Tributária Máxima";
+                description = "Detetamos um perfil de alto volume financeiro, forte movimentação patrimonial, despesas robustas e múltiplos vínculos. O custo de um erro de preenchimento ou perda de comprovantes neste patamar é altíssimo. O EasyIR oferece a infraestrutura definitiva de IA para auditar, organizar e blindar a sua declaração de ponta a ponta.";
+            }
+
+            document.getElementById('profileTitle').innerText = title;
+            document.getElementById('profileDescription').innerText = description;
+        }
+
+        function goToSystem() {
+            const emailInput = document.getElementById('userEmail').value;
+            if (!emailInput || !emailInput.includes('@')) {
+                alert('Por favor, insira um e-mail válido para continuar.');
+                return;
+            }
+            userEmailStorage = emailInput;
+
+            // Redireciona para o site oficial no Netlify com o e-mail coletado
+            window.location.href = "https://easy-ir.com/?email=" + encodeURIComponent(userEmailStorage);
+        }
+    </script>
+</body>
+
+</html>
